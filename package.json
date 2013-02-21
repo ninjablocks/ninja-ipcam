@@ -18,5 +18,8 @@
     "Module"
   ],
   "author": "Daniel Friedman",
-  "license": "MIT"
+  "license": "MIT",
+  "config":{
+    "urls":[]
+  }
 }

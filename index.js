@@ -1,6 +1,8 @@
 var Device = require('./lib/device')
   , util = require('util')
-  , stream = require('stream');
+  , stream = require('stream')
+  , configHandlers = require('./lib/config')
+  , url = require('url');
 
 // Give our module a stream interface
 util.inherits(ipcam,stream);
@@ -22,29 +24,52 @@ util.inherits(ipcam,stream);
 function ipcam(opts,app) {
 
   this._app = app;
+  this._opts = opts;
 
   var self = this;
 
   app.on('client::up',function(){
 
-    // Register a device
-    createDevice.call(self);
+    self._opts.urls.forEach(function(url,index) {
+      // Register a device
+      self.createCameraByUrl(url,index);
+    });
   });
 };
 
+/**
+ * Called when a user prompts a configuration
+ * @param  {Object}   rpc     Used to match up requests.
+ * @param  {Function} cb      Callback with return data
+ */
+ipcam.prototype.config = function(rpc,cb) {
 
-function createDevice() {
+  var self = this;
 
-  // var cameraOpts = {
-  //   host:'10.0.1.162',
-  //   port:80,
-  //   path:'/snapshot.cgi?user=admin&pwd=',
-  //   method:'GET'
-  // }
-  // var Camera = new Device(cameraOpts,this._app.opts,this._app.id,this._app.token,0);
-  // this.emit('register', Camera);
+  if (!rpc) {
+    return configHandlers.probe.call(this,cb);
+  }
 
-}
+  switch (rpc.method) {
+    case 'manual_set_url':     return configHandlers.manual_set_url.call(this,rpc.params,cb); break;
+    case 'manual_get_url':     return configHandlers.manual_get_url.call(this,rpc.params,cb); break;
+    case 'manual_show_remove': return configHandlers.manual_show_remove.call(this,rpc.params,cb); break;
+    case 'manual_remove_url': return configHandlers.manual_remove_url.call(this,rpc.params,cb); break;
+
+    default:                   return cb(true);                                              break;
+  }
+};
+
+ipcam.prototype.createCameraByUrl = function(snapshot_url,index) {
+
+  var opts = url.parse(snapshot_url);
+
+  opts.port = opts.port || 80;
+  opts.method='GET'
+
+  var Camera = new Device(opts,this._app.opts,this._app.id,this._app.token,'U'+index);
+  this.emit('register', Camera);
+};
 
 // Export it
 module.exports = ipcam;
