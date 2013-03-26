@@ -1,6 +1,6 @@
 {
   "name": "ninja-ipcam",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Generic module for interfacing with IP Cameras\"",
   "main": "index.js",
   "scripts": {
