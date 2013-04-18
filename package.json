@@ -1,7 +1,7 @@
 {
   "name": "ninja-ipcam",
   "version": "0.0.1",
-  "description": "Generic module for interfacing with IP Cameras\"",
+  "description": "Generic module for interfacing with IP Cameras",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
